@@ -1,0 +1,39 @@
+@charset "UTF-8";
+/*
+変数関係をまとめたファイル
+ */
+/*
+色に関して記述しているファイル
+色に関して、ここで宣言をしたものを利用する様にする
+*/
+:root {
+  --color-font-default: #143759;
+  --color-font-white: #fff;
+  --color-font-gray: #929292;
+  --color-font-gray-light: #d7d7d7;
+  --color-font-gray-dark: #7f7f7f;
+  --color-font-gray-breadcrumb: #b9b8b8;
+  --color-font-gray-date: #828282;
+  --color-font-gray-company-label: #8f8f8f;
+  --color-font-navy: #003255;
+  --color-font-navy-company-txt: #121830;
+  --color-bg-default: #fff;
+  --color-bg-navy: #003255;
+  --color-bg-gray: #f4f4f4;
+  --color-bg-gray2: #ebebeb;
+  --color-button-default: #000;
+  --color-stroke-default: #121830;
+  --color-stroke-gray: #dbdbdb;
+  --color-stroke-gray-dark: #696969;
+  --color-stroke-navy: #143657;
+  --color-stroke-navy-right: #004169;
+  --color-stroke-white: #fff;
+}
+
+/*
+ブレイクポイントに関して記述しているファイル
+下のブレイクポイントの設定を変更するときは必ずPMに一声かける
+ */
+/* ブレイクポイントの設定 min~max */
+/* mq-target:指定してメディアクエリのみに適用 */
+/* mq:指定より小さい画面に適用 */
