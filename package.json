@@ -29,6 +29,6 @@
     "core-js": "^3.6.4",
     "gulp-plumber": "^1.2.1",
     "gulp-util": "^3.0.8",
-    "node-notifier": "^7.0.0"
+    "node-notifier": "^8.0.1"
   }
 }
