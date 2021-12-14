@@ -2,5 +2,8 @@
 FooterのSCSSに関して記述しているファイル
 */
 
+@use "src/scss/define/mixin" as *;
+@use "src/scss/define/variable" as *;
+
 .footer {
 }

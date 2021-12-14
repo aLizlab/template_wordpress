@@ -1,0 +1,13 @@
+@use "src/scss/define/variable" as *;
+
+.font-yuGothic {
+  font-family: $fontFamily-primary;
+}
+
+.font-rotisSemiSans {
+  font-family: $fontFamily-rotisSemiSans;
+}
+
+.font-bold {
+  font-weight: 700;
+}

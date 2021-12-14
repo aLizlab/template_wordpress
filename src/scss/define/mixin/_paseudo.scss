@@ -1,0 +1,22 @@
+@use 'src/scss/define/mixin/box' as *;
+
+@mixin pseudo(
+  $width: null,
+  $height: null,
+  $pos: relative,
+  $top: null,
+  $right: null,
+  $bottom: null,
+  $left: null,
+  $display: block,
+) {
+  @include box($width, $height);
+
+  content: "";
+  position: $pos;
+  top: $top;
+  right: $right;
+  bottom: $bottom;
+  left: $left;
+  display: $display;
+}

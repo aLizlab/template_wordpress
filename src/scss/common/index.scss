@@ -1,0 +1,23 @@
+@use "src/scss/define/mixin" as *;
+@use "src/scss/define/variable" as var;
+
+@use 'font';
+@use 'sectionWrap';
+@use 'transition';
+
+html {
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-weight: 500;
+  font-family: var.$fontFamily-primary;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var.$color-primary-main;
+  background-color: var.$color-bg-main;
+
+  @include mq(md) {
+    @include font(14px);
+  }
+}

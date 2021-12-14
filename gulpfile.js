@@ -1,22 +1,38 @@
-const gulp = require("gulp");
-const sass = require("gulp-sass");
-const plumber = require("gulp-plumber");
-const pug = require("gulp-pug");
-const rename = require("gulp-rename");
-const autoprefixer = require("gulp-autoprefixer");
-const babel = require("gulp-babel");
+const gulp = require('gulp');
+const rename = require('gulp-rename');
+const del = require('del');
 
-// 画像の圧縮関係
+// 通知関係
+const plumber = require("gulp-plumber");
+const notifier = require('node-notifier');
+
+// ブラウザ関係
+const browser = require("browser-sync");
+const browserSync = browser.create();
+
+// CSS 系
+const sass = require('gulp-sass')(require('sass'));
+const postcss = require('gulp-postcss');
+const autoprefixer = require('autoprefixer');
+
+// JS 系
+const typescript = require('gulp-typescript');
+const babel = require('gulp-babel');
+
+// 画像系
 const imagemin = require('gulp-imagemin');
 const imageminJpg = require('imagemin-jpeg-recompress');
 const imageminPng = require('imagemin-pngquant');
 const imageminGif = require('imagemin-gifsicle');
 const svgmin = require('gulp-svgmin');
+const webp = require('gulp-webp');
 
-const browserSync = require("browser-sync").create();;
-const notifier = require("node-notifier");
+// Build 系
+const uglify = require('gulp-uglify');
 
-var onError = function(error) {
+
+// コンパイルエラーの時のメッセージ
+function onError (error) {
   notifier.notify(
     {
       message: "しっぱいしたワン",
@@ -26,118 +42,148 @@ var onError = function(error) {
       console.log(error.message);
     }
   );
-};
+}
 
-gulp.task("default", ["sass", "js", "watch", "browser-sync"]);
 
-// WordPressでの書き出し用
-gulp.task("build", ["sass", "js", "image-min"], cb => {
-  // CSS, JS をコピー
-  gulp
-    .src(["./assets/**/*.css", "./assets/**/*.js", "!./assets/imgs/**/*"], {
-      base: './assets/'
-    })
-    .pipe(gulp.dest("./dist/assets/"));
-
-  // WordPress Template に必要なファイルをコピー
-  gulp
-    .src(["./**/*.php", "./style.css", "./screenshot.png"], {
-      base: './'
-    })
-    .pipe(gulp.dest("./dist/"));
-
-  cb();
-});
-
-// 画像の圧縮タスク
-gulp.task('image-min', ["svg-min"], cb => {
-  gulp.src("./assets/imgs/**/*.+(jpg|jpeg|png|gif)")
-    .pipe(imagemin([
-        imageminPng(),
-        imageminJpg(),
-        imageminGif({
-          interlaced: false,
-          optimizationLevel: 3,
-          colors:180
-        })
-      ]
-    ))
-    .pipe(gulp.dest("./dist/assets/imgs/"));
-  cb();
-});
-
-// svg画像の圧縮タスク
-gulp.task('svg-min', cb => {
-  gulp.src("./assets/imgs/**/*.+(svg)")
-    .pipe(svgmin())
-    .pipe(gulp.dest("./dist/assets/imgs/"));
-  cb();
-});
-
-gulp.task("browser-sync", cb => {
+// ローカルサーバを起動
+function taskServer (done) {
   browserSync.init({
     files: ['./**/*.php'],
-    proxy: 'http://localhost/wordpress/',
+    proxy: 'http://localhost/',
     port: 3100
   });
-  cb();
-});
 
-gulp.task("watch", cb => {
-  gulp.watch("./src/sass/**/*.scss", () => {
-    console.log("sass");
-    gulp.start(["sass"]);
-    gulp.start(["reload"]);
-  });
+  done();
+}
 
-  gulp.watch("./src/js/**/*.js", () => {
-    console.log("js");
-    gulp.start(["js"]);
-    gulp.start(["reload"]);
-  });
+// ブラウザのリロードを行う
+function taskReload (done) {
+  browser.reload();
 
-  gulp.watch("./**/*.php", () => {
-    console.log("php");
-    gulp.start(["reload"]);
-  });
-  cb();
-});
+  done();
+}
 
-gulp.task("reload", cb => {
-  browserSync.reload();
-  cb();
-});
+// scss のビルドを行う
+function taskSass (done) {
+  const plugins = [
+    autoprefixer({ cascade: false }),
+  ];
 
-gulp.task("sass", cb => {
-  gulp
-    .src(["./src/sass/**/*.scss", "!./src/sass/**/_*.scss", "!./src/sass/app.scss"])
+  gulp.src(['./src/scss/**/*.scss', '!./src/scss/**/_*.scss'])
     .pipe(
       plumber({
         errorHandler: onError
       })
     )
-    .pipe(
-      sass({
-        outputStyle: "expanded"
-      })
-    )
-    .pipe(
-      autoprefixer({
-        browsers: ["last 2 versions", "ie >= 11", "Android >= 4"],
-        cascade: false
-      })
-    )
-    .pipe(gulp.dest("./assets/css/"))
-    .pipe(browserSync.stream());
-  cb();
-});
+    .pipe(sass({ outputStyle: 'compressed' }))
+    .pipe(postcss(plugins))
+    .pipe(gulp.dest('./assets/css'));
 
-gulp.task("js", cb => {
-  gulp
-    .src("./src/js/**/*.js")
-    .pipe(plumber())
+  done();
+}
+
+// ts のビルドを行う
+function taskTs (done) {
+  gulp.src(['./src/ts/**/*.ts', '!./src/ts/**/_*.ts'])
+    .pipe(
+      plumber({
+        errorHandler: onError
+      })
+    )
+    .pipe(typescript({
+      noImplicitAny: true,
+      removeComments: true,
+    }))
     .pipe(babel())
-    .pipe(gulp.dest("./assets/js/"))
-    .pipe(browserSync.stream());
-  cb();
-});
+    .pipe(gulp.dest('./assets/js'));
+
+  done();
+}
+
+// ファイルの変更を監視する
+function taskSurvey (done) {
+  gulp.watch('./src/scss/**/*.scss', gulp.parallel(taskSass, taskReload));
+  gulp.watch('./src/ts/**/*.ts', gulp.series(taskTs, taskReload));
+
+  gulp.watch('./**/*.php', () => {
+    console.log('php');
+    gulp.series(taskReload);
+  });
+
+  done();
+}
+
+// 不要なファイルの削除
+function taskClean (done) {
+  del(['./dist', './assets/css', './assets/js']);
+
+  done();
+}
+
+// 以前の公開用のフォルダの削除
+function taskBuildDel (done) {
+  del('./dist');
+
+  done();
+}
+
+// 公開用のフォルダの生成
+function taskBuildFile (done) {
+  gulp.src(['./assets/**/*', '!./assets/**/*.{svg,jpg,jpeg,png,gif,webp}'], {
+    base: './assets/'
+  })
+    .pipe(gulp.dest('./dist/assets/'));
+
+  // WordPress Template に必要なファイルをコピー
+  gulp.src(["./**/*.php", "./style.css", "./screenshot.png"], {
+      base: './'
+    })
+    .pipe(gulp.dest("./dist/"));
+
+  done();
+}
+
+// 公開用の画像の圧縮
+function taskBuildImgMin (done) {
+  gulp.src('./assets/img/**/*.{jpg,jpeg,png,gif}')
+    .pipe(imagemin([
+      imageminPng(),
+      imageminJpg(),
+      imageminGif({
+        interlaced: false,
+        optimizationLevel: 3,
+        colors:180
+      })
+    ]))
+    .pipe(gulp.dest('./dist/assets/img/'));
+
+  gulp.src('./assets/img/**/*.svg')
+    .pipe(svgmin())
+    .pipe(gulp.dest('./dist/assets/img/'));
+
+  done();
+}
+
+// 公開用の Webp の生成
+function taskBuildWebp (done) {
+  gulp.src('./dist/assets/img/**/*.{jpg,jpeg,png,gif}')
+    .pipe(webp())
+    .pipe(gulp.dest('./dist/assets/img'));
+
+  done();
+}
+
+// Webp の生成
+function taskWebp (done) {
+  gulp.src('./assets/img/**/*.{jpg,jpeg,png,gif}')
+    .pipe(webp())
+    .pipe(gulp.dest('./assets/img'));
+
+  done();
+}
+
+exports.default = gulp.series(gulp.parallel(taskSass, taskTs), taskServer, taskSurvey);
+exports.clean = gulp.series(taskClean);
+exports.build = gulp.series(taskBuildFile, taskBuildImgMin);
+exports.webp = gulp.series(taskWebp);
+exports.webpBuild = gulp.series(taskBuildWebp);

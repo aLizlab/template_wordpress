@@ -1,0 +1,16 @@
+@use "src/scss/define/mixin" as *;
+
+.sectionWrap {
+  width: 100%;
+
+  > .sectionWrap-inner {
+    width: 100%;
+    padding-right: 24px;
+    padding-left: 24px;
+
+    @include mq(md) {
+      padding-right: 16px;
+      padding-left: 16px;
+    }
+  }
+}

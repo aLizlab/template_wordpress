@@ -3,7 +3,7 @@
 /**
  * 404リダイレクトに関する処理
  */
-function tt_404_redirect() {
+function aliz_404_redirect() {
 
   if ( is_404() ) {
     wp_safe_redirect( home_url( '/' ) );
@@ -12,7 +12,7 @@ function tt_404_redirect() {
 
 }
 
-add_action('template_redirect', 'tt_404_redirect');
+add_action('template_redirect', 'aliz_404_redirect');
 
 
 /**
@@ -22,7 +22,7 @@ add_action('template_redirect', 'tt_404_redirect');
  * runs before the init hook. The init hook is too late for some features, such
  * as indicating support for post thumbnails.
  */
-function tt_theme_support() {
+function aliz_theme_support() {
 
   // Add default posts and comments RSS feed links to head.
   add_theme_support( 'automatic-feed-links' );
@@ -87,13 +87,13 @@ function tt_theme_support() {
 
 }
 
-add_action( 'after_setup_theme', 'tt_theme_support' );
+add_action( 'after_setup_theme', 'aliz_theme_support' );
 
 
 ///**
 // * 言語に関する処理
 // */
-//function tt_set_lang() {
+//function aliz_set_lang() {
 //
 //  global $lang;
 //
@@ -105,67 +105,66 @@ add_action( 'after_setup_theme', 'tt_theme_support' );
 //
 //}
 //
-//add_action('after_setup_theme', 'tt_set_lang');
+//add_action('after_setup_theme', 'aliz_set_lang');
 
 
 /**
  * Register and Enqueue Styles.
  */
-function tt_register_styles() {
+function aliz_register_styles() {
 
   $theme_version = wp_get_theme()->get( 'Version' );
   $dir = get_stylesheet_directory_uri();
 
-  wp_enqueue_style( 'tt-style', get_stylesheet_uri(), array(), $theme_version );
-  wp_enqueue_style( 'tt-style-reset', $dir . '/assets/css/reset.css', array(), $theme_version );
-  wp_enqueue_style( 'tt-style-common', $dir . '/assets/css/common.css', array( 'tt-style-reset' ), $theme_version );
+  wp_enqueue_style( 'aliz-style', get_stylesheet_uri(), array(), $theme_version );
+  wp_enqueue_style( 'aliz-style-reset', $dir . '/assets/css/reset.css', array(), $theme_version );
+  wp_enqueue_style( 'aliz-style-common', $dir . '/assets/css/common/index.css', array( 'aliz-style-reset' ), $theme_version );
+  wp_enqueue_style( 'aliz-style-parts', $dir . '/assets/css/parts/index.css', array( 'aliz-style-reset' ), $theme_version );
 
   // 各ページのCSSを読み込み
   if ( is_front_page() ) {
-    wp_enqueue_style( 'tt-style-top', $dir . '/assets/css/pages/top.css', array( 'tt-style-common' ), $theme_version );
+    wp_enqueue_style( 'aliz-style-top', $dir . '/assets/css/pages/top.css', array( 'aliz-style-common', 'aliz-style-parts' ), $theme_version );
   } elseif ( is_home() ) {
-    wp_enqueue_style( 'tt-style-posts', $dir . '/assets/css/pages/posts.css', array( 'tt-style-common' ), $theme_version );
+    wp_enqueue_style( 'aliz-style-posts', $dir . '/assets/css/pages/posts.css', array( 'aliz-style-common', 'aliz-style-parts' ), $theme_version );
   } elseif ( is_page('**') ) {
-    wp_enqueue_style( 'tt-style-**', $dir . '/assets/css/pages/**.css', array( 'tt-style-common' ), $theme_version );
+    wp_enqueue_style( 'aliz-style-**', $dir . '/assets/css/pages/**.css', array( 'aliz-style-common', 'aliz-style-parts' ), $theme_version );
   } elseif ( is_singular() ) {
-    wp_enqueue_style( 'tt-style-post', $dir . '/assets/css/post/post.css', array( 'tt-style-common' ), $theme_version );
+    wp_enqueue_style( 'aliz-style-post', $dir . '/assets/css/pages/post.css', array( 'aliz-style-common', 'aliz-style-parts' ), $theme_version );
   } else {
-    wp_enqueue_style( 'tt-style-default', $dir . '/assets/css/pages/default.css', array( 'tt-style-common' ), $theme_version );
+//    wp_enqueue_style( 'aliz-style-default', $dir . '/assets/css/pages/default.css', array( 'aliz-style-common' ), $theme_version );
   }
 
 }
 
-add_action( 'wp_enqueue_scripts', 'tt_register_styles' );
+add_action( 'wp_enqueue_scripts', 'aliz_register_styles' );
 
 
 /**
  * Register and Enqueue Scripts.
  */
-function tt_register_scripts() {
+function aliz_register_scripts() {
 
   $theme_version = wp_get_theme()->get( 'Version' );
   $dir = get_stylesheet_directory_uri();
 
-  wp_enqueue_script( 'tt-js-jquery', $dir . '/assets/js/jquery-3.4.1.min.js', array(), '3.4.1', false );
-  wp_enqueue_script( 'tt-js-jquery-cookie', $dir . '/assets/js/jquery.cookie.js', array('tt-js-jquery'), $theme_version, false );
-  wp_enqueue_script( 'tt-js-main', $dir . '/assets/js/common.js', array('tt-js-jquery'), $theme_version, false );
+  wp_enqueue_script( 'aliz-js-main', $dir . '/assets/js/common.js', array('aliz-js-jquery'), $theme_version, false );
 
   // 各ページのJSを読み込み
   if ( is_front_page() ) {
-    wp_enqueue_script( 'tt-js-top', $dir . '/assets/js/pages/top.js', array( 'tt-js-main' ), $theme_version, false );
+    wp_enqueue_script( 'aliz-js-top', $dir . '/assets/js/pages/top.js', array( 'aliz-js-main' ), $theme_version, false );
   } elseif ( is_home() ) {
-    wp_enqueue_script( 'tt-js-posts', $dir . '/assets/js/pages/posts.js', array( 'tt-js-main' ), $theme_version, false );
+    wp_enqueue_script( 'aliz-js-posts', $dir . '/assets/js/pages/posts.js', array( 'aliz-js-main' ), $theme_version, false );
   } elseif ( is_page('**') ) {
-    wp_enqueue_script( 'tt-js-**', $dir . '/assets/js/pages/**.js', array( 'tt-js-main' ), $theme_version, false );
+    wp_enqueue_script( 'aliz-js-**', $dir . '/assets/js/pages/**.js', array( 'aliz-js-main' ), $theme_version, false );
   } elseif ( is_singular() ) {
-    wp_enqueue_script( 'tt-js-post', $dir . '/assets/js/posts/post.js', array( 'tt-js-main' ), $theme_version, false );
+    wp_enqueue_script( 'aliz-js-post', $dir . '/assets/js/pages/post.js', array( 'aliz-js-main' ), $theme_version, false );
   } else {
-    wp_enqueue_script( 'tt-js-default', $dir . '/assets/js/pages/default.js', array( 'tt-js-main' ), $theme_version, false );
+//    wp_enqueue_script( 'aliz-js-default', $dir . '/assets/js/pages/default.js', array( 'aliz-js-main' ), $theme_version, false );
   }
 
 }
 
-add_action( 'wp_enqueue_scripts', 'tt_register_scripts' );
+add_action( 'wp_enqueue_scripts', 'aliz_register_scripts' );
 
 
 add_action('phpmailer_init', function($phpmailer) {

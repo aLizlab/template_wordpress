@@ -1,0 +1,20 @@
+@mixin box-mg($margin-top: null, $margin-right: null, $margin-bottom: null, $margin-left: null) {
+  margin-top: $margin-top;
+  margin-right: $margin-right;
+  margin-bottom: $margin-bottom;
+  margin-left: $margin-left;
+}
+
+@mixin box-pd($padding-top: null, $padding-right: null, $padding-bottom: null, $padding-left: null) {
+  padding-top: $padding-top;
+  padding-right: $padding-right;
+  padding-bottom: $padding-bottom;
+  padding-left: $padding-left;
+}
+
+@mixin box($width: null, $height: null, $padding-top: null, $padding-right: null, $padding-bottom: null, $padding-left: null) {
+  @include box-pd($padding-top, $padding-right, $padding-bottom, $padding-left);
+
+  width: $width;
+  height: $height;
+}
